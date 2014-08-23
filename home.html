@@ -1,0 +1,21 @@
+<html>
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="get_rating.js"> </script>
+		<script>
+			//rating('Kenau');
+		
+			$(document).ready(function(){
+			  	$("#ratingBtn").click(function(){
+					rating($("#title")[0].value);
+			  	});
+			});
+			
+		</script>
+	</head>
+	<body>
+		<input type='text' id='title' value ='Enter film name' />
+		<input type="button" value="get imdb rating" id="ratingBtn"/> 
+	</body>
+</html>
+
