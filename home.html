@@ -1,21 +1,83 @@
 <html>
 	<head>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-		<script src="get_rating.js"> </script>
 		<script>
-			//rating('Kenau');
-		
-			$(document).ready(function(){
-			  	$("#ratingBtn").click(function(){
-					rating($("#title")[0].value);
-			  	});
+		// API 
+		function rating(title){
+			if (title == ''){
+				$("#loading")[0].innerHTML = ''
+				$("#result")[0].innerHTML = '';
+				return;
+			}
+		    $.ajax({
+				url:"http://www.omdbapi.com/?s=" + title + "&yg=0&r=json",
+				success: function(result){
+					var titleJson = JSON.parse(result);
+			
+					if (titleJson.Response != 'undefined' && titleJson.Response == 'False'){
+						console.error('cannot find reference for title: ' + titleJson.Error);
+						
+						$("#result")[0].innerHTML = titleJson.Error;
+						$("#loading")[0].innerHTML = ''
+						
+					}else{
+						var candidates = ''
+						
+						if (titleJson.Search.length > 0){
+							for (i = 0; i < titleJson.Search.length; i++){
+								var titleJsonObj = titleJson.Search[i];	
+					
+								if (titleJsonObj.Title.toUpperCase() == title.toUpperCase()){
+									_getRating(titleJsonObj.imdbID)
+									return;
+								}
+							}
+							
+							// get candidates:
+							for (i=0; i < titleJson.Search.length; i++){
+								candidates += titleJson.Search[i].Title + '<br />';
+							}
+						}
+						
+						$("#result")[0].innerHTML = 'No match';
+						if (candidates.length > 0){
+							$("#result")[0].innerHTML += ", did you meas: <br /><br />" + candidates;
+						}
+						$("#loading")[0].innerHTML = ''
+					}
+		    	}
 			});
+		};
+
+		function _getRating(imdbTitle){
+			$.ajax({
+				url: "http://www.omdbapi.com/?i=" + imdbTitle + "&r=json",
+				success: function(result2){
+					$("#result")[0].innerHTML = 'imdb rating: ' + JSON.parse(result2).imdbRating;
+					$("#loading")[0].innerHTML = ''
+				}
+			})
+		}
+		// ~ API 
+		// ---------------------------------------------------------------------
+		
+		$(document).ready(function(){
+		  	$("#ratingBtn").click(function(){
+				
+				$("#result")[0].innerHTML = ''
+				$("#loading")[0].innerHTML = 'loading....'
+				
+				rating($("#title")[0].value);
+		  	});
+		});
 			
 		</script>
 	</head>
 	<body>
-		<input type='text' id='title' value ='Enter film name' />
-		<input type="button" value="get imdb rating" id="ratingBtn"/> 
+		<input type='text' id='title' placeholder ='Enter film name' />
+		<input type="button" value="get imdb rating" id="ratingBtn"/>
+		<div id="loading"></div>
+		<div id="result"> </div>
 	</body>
 </html>
 
